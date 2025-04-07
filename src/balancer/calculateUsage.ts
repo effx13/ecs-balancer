@@ -54,11 +54,11 @@ export function canReBalance(instanceResources: InstanceResource[], tasks: Task[
   console.log("\n=== Starting Rebalancing Check ===");
   console.log(`Total instances: ${instanceResources.length}`);
 
-  // CPU 사용량이 0인 인스턴스가 있는지 먼저 확인
+  // First check if there are any instances with 0% CPU usage
   const zeroCpuInstances = instanceResources.filter((resource) => resource.currentCpu === 0);
 
   if (zeroCpuInstances.length > 0) {
-    // CPU 사용량이 0인 인스턴스 중 하나를 선택
+    // Select one of the instances with 0% CPU usage
     const targetInstance = zeroCpuInstances[0];
     console.log("\nFound instance with zero CPU usage:");
     console.log(`Instance ARN: ${targetInstance.arn}`);
@@ -72,7 +72,7 @@ export function canReBalance(instanceResources: InstanceResource[], tasks: Task[
     };
   }
 
-  // CPU 사용량이 0이 아닌 인스턴스들 중에서 가장 낮은 인스턴스를 찾는다
+  // Find the instance with the lowest CPU usage among non-zero instances
   const sortedResources = instanceResources.sort((a, b) => {
     return a.currentCpu - b.currentCpu;
   });
@@ -94,8 +94,8 @@ export function canReBalance(instanceResources: InstanceResource[], tasks: Task[
     return { canReBalance: false };
   }
 
-  // 각 태스크를 남은 인스턴스에 배치할 수 있는지 확인
-  const taskAssignments = new Map<string, string>(); // taskArn -> targetInstanceArn
+  // Check if each task can be placed on the remaining instances
+  const taskAssignments = new Map<string, string>(); // Maps taskArn to targetInstanceArn
   const remainingResourcesCopy = remainingResources.map((resource) => ({
     ...resource,
     availableCpu: resource.maximumCpu - resource.currentCpu,
@@ -116,7 +116,7 @@ export function canReBalance(instanceResources: InstanceResource[], tasks: Task[
     let taskAssigned = false;
     for (const resource of remainingResourcesCopy) {
       if (resource.availableCpu >= taskCpu && resource.availableMemory >= taskMemory) {
-        // 태스크를 이 인스턴스에 배치
+        // Place the task on this instance
         resource.availableCpu -= taskCpu;
         resource.availableMemory -= taskMemory;
         taskAssignments.set(task.taskArn, resource.arn);

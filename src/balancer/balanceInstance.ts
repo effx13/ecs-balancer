@@ -16,10 +16,10 @@ export default async function balanceInstance() {
 
   const data = canReBalance(instanceResources, tasks);
 
-  // if (data.canReBalance && data.targetInstanceArn) {
-  //   console.log(`Rebalancing instance: ${data.targetInstanceArn}`);
-  //   await terminateInstance(data.targetInstanceArn);
-  // } else {
-  //   console.log("No rebalancing needed");
-  // }
+  if (data.canReBalance && data.targetInstanceArn) {
+    console.log(`Rebalancing instance: ${data.targetInstanceArn}`);
+    await terminateInstance(data.targetInstanceArn);
+  } else {
+    console.log("No rebalancing needed");
+  }
 }

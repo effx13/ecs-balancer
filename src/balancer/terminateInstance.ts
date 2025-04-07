@@ -63,7 +63,7 @@ async function checkIsDrained(arn: string): Promise<boolean> {
   const targetInstance = data.containerInstances?.find((instance) => instance.containerInstanceArn === arn);
 
   if (!targetInstance) {
-    // 만약 인스턴스가 존재하지 않는다면, 드레인이 완료된 것으로 간주
+    // If the instance doesn't exist, consider the drain as completed
     return true;
   }
 
