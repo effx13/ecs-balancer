@@ -18,7 +18,6 @@
     "@aws-sdk/client-auto-scaling": "^3.731.1",
     "@aws-sdk/client-ec2": "^3.731.1",
     "@aws-sdk/client-ecs": "^3.731.1",
-    "aws-sdk": "^2.1692.0",
     "tiny-invariant": "^1.3.3",
     "winston": "^3.17.0"
   },
