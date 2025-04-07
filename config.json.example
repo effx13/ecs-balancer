@@ -1,0 +1,6 @@
+{
+  "region": "<region>",
+  "targetClusterArn": "arn:aws:ecs:<region>:<user-id>:cluster/<cluster-name>",
+  "capacityProvider": "EC2",
+  "autoScalingGroupName": "<asg-name>"
+}
