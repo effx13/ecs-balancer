@@ -1,15 +1,19 @@
 {
   "name": "ecs-balancer",
   "version": "1.0.0",
-  "description": "",
+  "description": "ECS Balancer",
   "main": "index.ts",
   "scripts": {
     "build": "tsup src/index.ts",
     "start": "ts-node src/index.ts"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "ecs",
+    "balancer",
+    "aws"
+  ],
+  "author": "eFFx",
+  "license": "MIT",
   "dependencies": {
     "@aws-sdk/client-auto-scaling": "^3.731.1",
     "@aws-sdk/client-ec2": "^3.731.1",
@@ -21,7 +25,6 @@
   "devDependencies": {
     "@types/aws-lambda": "^8.10.147",
     "@types/node": "^22.10.7",
-    "esbuild": "^0.24.2",
     "ts-node": "^10.9.2",
     "tsup": "^8.4.0",
     "typescript": "^5.7.3"
