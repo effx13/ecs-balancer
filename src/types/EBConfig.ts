@@ -3,4 +3,5 @@ export interface EBConfig {
   targetClusterArn: string;
   capacityProvider: string;
   autoScalingGroupName: string;
+  debug?: boolean;
 }

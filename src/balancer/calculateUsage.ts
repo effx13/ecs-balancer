@@ -1,5 +1,6 @@
 import { ContainerInstance, Task } from "@aws-sdk/client-ecs";
 import invariant from "tiny-invariant";
+import logger from "../utils/logger";
 
 interface InstanceResource {
   arn: string;
@@ -51,20 +52,18 @@ export interface ReBalanceInstance {
 }
 
 export function canReBalance(instanceResources: InstanceResource[], tasks: Task[]): ReBalanceInstance {
-  console.log("\n=== Starting Rebalancing Check ===");
-  console.log(`Total instances: ${instanceResources.length}`);
-
   // First check if there are any instances with 0% CPU usage
   const zeroCpuInstances = instanceResources.filter((resource) => resource.currentCpu === 0);
 
   if (zeroCpuInstances.length > 0) {
     // Select one of the instances with 0% CPU usage
     const targetInstance = zeroCpuInstances[0];
-    console.log("\nFound instance with zero CPU usage:");
-    console.log(`Instance ARN: ${targetInstance.arn}`);
-    console.log(`Current CPU: ${targetInstance.currentCpu}`);
-    console.log(`Current Memory: ${targetInstance.currentMemory}`);
-    console.log("This instance can be terminated as it has no running tasks.");
+    logger.info("Found instance with zero CPU usage", {
+      instanceId: targetInstance.arn,
+      cpuUsage: `${targetInstance.currentCpu}%`,
+      memoryUsage: `${targetInstance.currentMemory}%`,
+      message: "This instance can be terminated as it has no running tasks.",
+    });
 
     return {
       canReBalance: true,
@@ -78,19 +77,23 @@ export function canReBalance(instanceResources: InstanceResource[], tasks: Task[
   });
   const targetInstance = sortedResources[0];
 
-  console.log("\nSelected target instance with lowest CPU usage:");
-  console.log(`Instance ARN: ${targetInstance.arn}`);
-  console.log(`Current CPU: ${targetInstance.currentCpu}`);
-  console.log(`Current Memory: ${targetInstance.currentMemory}`);
+  logger.info("Selected target instance with lowest CPU usage", {
+    instanceId: targetInstance.arn,
+    cpuUsage: `${targetInstance.currentCpu}%`,
+    memoryUsage: `${targetInstance.currentMemory}%`,
+    remainingInstances: instanceResources.filter((resource) => resource.arn !== targetInstance.arn).length,
+  });
 
   const remainingResources = instanceResources.filter((resource) => resource.arn !== targetInstance.arn);
-  console.log(`\nRemaining instances: ${remainingResources.length}`);
+  logger.debug(`Remaining instances: ${remainingResources.length}`);
 
   const targetInstanceTasks = tasks.filter((task) => task.containerInstanceArn === targetInstance.arn);
-  console.log(`Tasks running on target instance: ${targetInstanceTasks.length}`);
+  logger.debug("Target instance task information", {
+    runningTasks: targetInstanceTasks.length,
+  });
 
   if (targetInstanceTasks.length === 0) {
-    console.log("No tasks found on target instance. Cannot rebalance.");
+    logger.info("No tasks found on target instance. Cannot rebalance.");
     return { canReBalance: false };
   }
 
@@ -110,8 +113,11 @@ export function canReBalance(instanceResources: InstanceResource[], tasks: Task[
     const taskCpu = parseInt(task.cpu, 10);
     const taskMemory = parseInt(task.memory, 10);
 
-    console.log(`\nChecking task ${task.taskArn}:`);
-    console.log(`Required CPU: ${taskCpu}, Required Memory: ${taskMemory}`);
+    logger.debug("Checking task requirements", {
+      taskArn: task.taskArn,
+      requiredCpu: taskCpu,
+      requiredMemory: taskMemory,
+    });
 
     let taskAssigned = false;
     for (const resource of remainingResourcesCopy) {
@@ -122,23 +128,34 @@ export function canReBalance(instanceResources: InstanceResource[], tasks: Task[
         taskAssignments.set(task.taskArn, resource.arn);
         taskAssigned = true;
 
-        console.log(`Task can be assigned to instance ${resource.arn}`);
-        console.log(`Available CPU: ${resource.availableCpu}, Available Memory: ${resource.availableMemory}`);
+        logger.debug("Task assignment successful", {
+          taskArn: task.taskArn,
+          targetInstance: resource.arn,
+          availableCpu: resource.availableCpu,
+          availableMemory: resource.availableMemory,
+        });
         break;
       }
     }
 
     if (!taskAssigned) {
-      console.log("No suitable instance found for this task");
+      logger.info("No suitable instance found for task", { taskArn: task.taskArn });
       return { canReBalance: false };
     }
   }
 
-  console.log("\nAll tasks can be redistributed!");
-  console.log("Task assignments:");
-  for (const [taskArn, instanceArn] of taskAssignments) {
-    console.log(`Task ${taskArn} -> Instance ${instanceArn}`);
-  }
+  const assignments = Array.from(taskAssignments.entries()).map(([taskArn, instanceArn]) => ({
+    taskArn,
+    instanceArn,
+  }));
+
+  logger.info("Rebalancing summary", {
+    canRebalance: true,
+    targetInstance: targetInstance.arn,
+    cpuUsage: `${targetInstance.currentCpu}%`,
+    memoryUsage: `${targetInstance.currentMemory}%`,
+    taskAssignments: assignments,
+  });
 
   return {
     canReBalance: true,

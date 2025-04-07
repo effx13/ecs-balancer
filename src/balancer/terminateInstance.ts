@@ -2,6 +2,7 @@ import { TerminateInstanceInAutoScalingGroupCommand } from "@aws-sdk/client-auto
 import { DeregisterContainerInstanceCommand, DescribeContainerInstancesCommand, UpdateContainerInstancesStateCommand } from "@aws-sdk/client-ecs";
 import { asgClient, ecsClient } from "../ecs/awsClients";
 import { getConfig } from "../utils/config";
+import logger from "../utils/logger";
 
 export default async function terminateInstance(arn: string) {
   const command = new DescribeContainerInstancesCommand({
@@ -50,6 +51,11 @@ export default async function terminateInstance(arn: string) {
 
     await asgClient.send(terminateCommand);
   }
+
+  logger.debug("Instance termination process", {
+    instanceId: arn,
+    status: "terminated",
+  });
 }
 
 async function checkIsDrained(arn: string): Promise<boolean> {

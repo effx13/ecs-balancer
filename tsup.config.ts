@@ -6,6 +6,7 @@ const config = defineConfig({
   sourcemap: false,
   clean: true,
   minify: true,
+  noExternal: [/(.*)/],
 });
 
 export default config;
