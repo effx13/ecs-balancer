@@ -43,6 +43,25 @@ pnpm install
 
 ## 사용 방법
 
+1. `config.json.example`을 `config.json`로 복사합니다:
+
+```bash
+cp config.json.example config.json
+```
+
+2. `config.json`을 AWS ECS 클러스터 정보에 맞게 수정합니다:
+
+```json
+{
+  "region": "your-aws-region",
+  "targetClusterArn": "your-ecs-cluster-arn",
+  "capacityProvider": "EC2",
+  "autoScalingGroupName": "your-asg-name"
+}
+```
+
+3. 밸런서를 시작합니다:
+
 ```bash
 pnpm start
 ```

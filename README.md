@@ -43,6 +43,25 @@ pnpm install
 
 ## Usage
 
+1. Copy `config.json.example` to `config.json`:
+
+```bash
+cp config.json.example config.json
+```
+
+2. Edit `config.json` with your AWS ECS cluster details:
+
+```json
+{
+  "region": "your-aws-region",
+  "targetClusterArn": "your-ecs-cluster-arn",
+  "capacityProvider": "EC2",
+  "autoScalingGroupName": "your-asg-name"
+}
+```
+
+3. Start the balancer:
+
 ```bash
 pnpm start
 ```
