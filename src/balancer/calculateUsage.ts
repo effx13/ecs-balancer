@@ -60,8 +60,8 @@ export function canReBalance(instanceResources: InstanceResource[], tasks: Task[
     const targetInstance = zeroCpuInstances[0];
     logger.info("Found instance with zero CPU usage", {
       instanceId: targetInstance.arn,
-      cpuUsage: `${targetInstance.currentCpu}%`,
-      memoryUsage: `${targetInstance.currentMemory}%`,
+      cpuUsage: `${targetInstance.currentCpu}`,
+      memoryUsage: `${targetInstance.currentMemory}`,
       message: "This instance can be terminated as it has no running tasks.",
     });
 
@@ -79,8 +79,8 @@ export function canReBalance(instanceResources: InstanceResource[], tasks: Task[
 
   logger.info("Selected target instance with lowest CPU usage", {
     instanceId: targetInstance.arn,
-    cpuUsage: `${targetInstance.currentCpu}%`,
-    memoryUsage: `${targetInstance.currentMemory}%`,
+    cpuUsage: `${targetInstance.currentCpu}`,
+    memoryUsage: `${targetInstance.currentMemory}`,
     remainingInstances: instanceResources.filter((resource) => resource.arn !== targetInstance.arn).length,
   });
 
@@ -152,8 +152,8 @@ export function canReBalance(instanceResources: InstanceResource[], tasks: Task[
   logger.info("Rebalancing summary", {
     canRebalance: true,
     targetInstance: targetInstance.arn,
-    cpuUsage: `${targetInstance.currentCpu}%`,
-    memoryUsage: `${targetInstance.currentMemory}%`,
+    cpuUsage: `${targetInstance.currentCpu}`,
+    memoryUsage: `${targetInstance.currentMemory}`,
     taskAssignments: assignments,
   });
 
